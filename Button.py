@@ -1,5 +1,5 @@
 import Blocky.uasyncio as asyncio
-import Blocky.asyn as asyn
+from Blocky.asyn import  cancellable , Cancellable
 from machine import Pin
 from Blocky.Pin import *
 from Blocky.Timer import runtime
@@ -17,7 +17,7 @@ class Button:
 		self.button = Pin(self.p[0] , Pin.IN , Pin.PULL_DOWN)
 		self.button.irq(trigger = Pin.IRQ_RISING|Pin.IRQ_FALLING , handler = self._handler)
 		loop = asyncio.get_event_loop()
-		loop.create_task(asyn.Cancellable(self._async_handler)())
+		loop.create_task(Cancellable(self._async_handler)())
 	def event(self , type , time , function):
 		function_name = str(type) + str(time)
 		if not callable(function) :
@@ -25,7 +25,7 @@ class Button:
 			return 
 		self.ButtonTaskList[function_name] = function
 		
-	@asyn.cancellable
+	
 	def _handler(self,source):
 		state = self.button.value()
 		now = runtime()
@@ -39,7 +39,7 @@ class Button:
 			print('hold for ' , (self.his[-1] - self.his[-2] )// 1000 ,'seconds')
 			self.execute('hold' ,  (self.his[-1] - self.his[-2] )// 1000 )
 			self.his.clear()
-			
+	@cancellable		
 	async def _async_handler (self):
 		while True :
 			await asyncio.sleep_ms(500)

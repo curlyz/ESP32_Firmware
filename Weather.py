@@ -4,6 +4,7 @@ from dht import *
 from Blocky.Pin import getPin
 from Blocky.Timer import runtime
 import Blocky.uasyncio as asyncio
+from Blocky.asyn import  Cancellable
 
 class Weather:
 	def __init__ (self , port,module='DHT11'):
@@ -62,7 +63,7 @@ class Weather:
 						self.cb_temperature[0](self.weather.temperature())
 					if self.cb_temperature[1] == 'g':
 						loop = asyncio.get_event_loop()
-						loop.call_soon(self.cb_temperature[0](self.weather.temperature()))
+						loop.create_task(Cancellable(self.cb_temperature[0])(self.weather.temperature()))
 						
 				except Exception as err:
 					print('weather-event-temp->',err)
@@ -73,7 +74,7 @@ class Weather:
 						self.cb_humidity[0](self.weather.humidity())
 					if self.cb_humidity[1] == 'g':
 						loop = asyncio.get_event_loop()
-						loop.call_soon(self.cb_humidity[0](self.weather.humidity()))
+						loop.create_task(Cancellable(self.cb_temperature[0])(self.weather.humidity()))
 						
 				except Exception:
 					print('weather-event-humd->',err)

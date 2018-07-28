@@ -33,8 +33,46 @@ async def service():
 		await asyncio.sleep_ms(300)
 		
 		if Blocky.Global.flag_UPCODE == True:
+			#perform clean up here 
+			# ::Section1:: Coroutine -> Handle by Network 
+			print(' ::Section2:: Variables ')
+			global GLOBAL_CAPTURE
+			print(GLOBAL_CAPTURE)
+			for x in list(globals().keys()):
+				if x not in GLOBAL_CAPTURE:
+					
+					print(x)
+					#del globals()[x]
+			list_pin = [4,33,16,32,22,25,26,14,18,13,17,27,19]
+			print(' ::Section3:: Pin IRQ , PWM ')
+			from machine import Pin , PWM
+			for x in list_pin:
+				PWM(Pin(x)).deinit()
+				Pin(x).irq(None)
+			print(' ::Section4:: Network Topic')
+			network.message_handlers = {}
+			network.echo = []
+			from json import loads
+			network.config = loads(open('config.json','r').read())
+			register_data = {'event': 'register', 
+			'chipId': CHIP_ID, 
+			'firmwareVersion': '1.0',
+			'name': network.config.get('device_name', 'Blocky_' + CHIP_ID),
+			'type': 'esp32'
+			}
+			network.mqtt.subscribe(network.config['auth_key'] + '/sys/' + CHIP_ID + '/ota/#')
+			network.mqtt.subscribe(network.config['auth_key'] + '/sys/' + CHIP_ID + '/run/#')
+			network.mqtt.subscribe(network.config['auth_key'] + '/sys/' + CHIP_ID + '/rename/#')
+			network.mqtt.subscribe(network.config['auth_key'] + '/sys/' + CHIP_ID + '/reboot/#')
+			network.mqtt.subscribe(network.config['auth_key'] + '/sys/' + CHIP_ID + '/upload/#')
+			network.mqtt.subscribe(network.config['auth_key'] + '/sys/' + CHIP_ID + '/upgrade/#')
+			network.mqtt.publish(topic=network.config['auth_key'] + '/sys/', msg=dumps(register_data))
+		
 			print('Ran by Flag')
-			exec(open('user_code.py').read())
+			try :
+				exec(open('user_code.py').read())
+			except Exception as err:
+				network.log('Your code crashed somehow -> ' + err)
 			
 			Blocky.Global.flag_UPCODE= False
 		network.process()
@@ -66,7 +104,7 @@ else :
 from Blocky.MQTT import *
 from Blocky.Network import *
 
-GLOBAL_CAPTURE = list(globals().keys())
+GLOBAL_CAPTURE = []
 
 try :
 	exec(open('user_code.py').read())
@@ -87,7 +125,7 @@ def atte():
     except Exception as err:
       print(err)
       
-   
+GLOBAL_CAPTURE = list(globals().keys()) 
 _thread.start_new_thread(atte,())
 
 

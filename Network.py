@@ -8,7 +8,7 @@ from Blocky.Timer import *
 from ujson import dumps , loads
 #import uasyncio as asyncio
 import Blocky.uasyncio as asyncio
-import Blocky.asyn as asyn
+from Blocky.asyn import cancellable , Cancellable
 BROKER = 'broker.getblocky.com'
 CHIP_ID = hexlify(unique_id()).decode('ascii')
 from machine import Timer , Pin
@@ -135,7 +135,7 @@ class Network:
 					loop = asyncio.get_event_loop()
 					try :
 						if not str(function(self.topic.split('/')[-1],self.message)).split("'")[1] in loop.tasks :
-							loop.call_soon(function(self.topic.split('/')[-1],self.message),self.topic.split('/')[-1],self.message)
+							loop.create_task(Cancellable(function(self.topic.split('/')[-1],self.message))(self.topic.split('/')[-1],self.message))
 					except Exception as err:
 						print('['+str(runtime())+']','nw-handler->' , err)
 						

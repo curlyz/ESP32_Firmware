@@ -1,4 +1,5 @@
 import Blocky.uasyncio as asyncio
+from Blocky.asyn import cancellable , Cancellable
 from Blocky.Pin import *
 from Blocky.Network import network
 from time import *
@@ -140,7 +141,7 @@ class RFID:
 						if str(self.cb).find('generator'):
 							
 							loop = asyncio.get_event_loop()
-							loop.call_soon(self.cb(now))
+							loop.create_task(Cancellable(self.cb)())
 						else :
 							self.cb(now)
 				except Exception as err:
