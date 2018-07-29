@@ -28,6 +28,16 @@ class Buzzer:
 		for x in range(self.beeptime):
 			self.buzzer.value(not self.buzzer.value())
 			sleep_ms(time)
+	def turn (self , value):
+		if isinstance(value,int):
+			self.buzzer.value( value )
+		else :
+			if value == 'on':
+				self.buzzer.value(1)
+			elif value == 'off':
+				self.buzzer.value(0)
+			elif value == 'flip':
+				self.buzzer.value(not self.buzzer.value())
 	"""
 	async def play(self,sequence):
 		from machine import PWM 

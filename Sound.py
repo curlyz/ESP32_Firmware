@@ -1,5 +1,5 @@
 import Blocky.uasyncio as asyncio
-from Blocky.asyn import Cancellable
+from Blocky.asyn import Cancellable , cancellable
 from Blocky.Pin import getPin
 from machine import ADC , Pin 
 from time import ticks_ms
@@ -21,8 +21,8 @@ class Sound:
 		self.callback = [None,None]
 		loop = asyncio.get_event_loop()
 		#loop.call_soon(self.handler())
-		loop.create_task(asyn.Cancellable(self.handler)())
-	@asyn.cancellable
+		loop.create_task(Cancellable(self.handler)())
+	@cancellable
 	async def handler(self):
 		while True :
 			await asyncio.sleep_ms(10)
@@ -54,7 +54,7 @@ class Sound:
 						
 				self.count = 0
 				self.prev = 0
-	def event(self , mode , time, function):
+	def event(self , type , time, function):
 		if not callable(function):
 			return 
 		if time == 'all':

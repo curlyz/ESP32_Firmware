@@ -21,7 +21,6 @@ from Blocky.Timer import *
 from Blocky.Network import network
 from Blocky.Indicator import indicator
 import Blocky.uasyncio as asyncio
-
 from machine import Pin
 if  Pin(12,Pin.IN,Pin.PULL_UP).value():
 	import Blocky.ConfigManager#exec(open('Blocky/ConfigManager.py').read())
@@ -35,6 +34,9 @@ async def service():
 		if Blocky.Global.flag_UPCODE == True:
 			#perform clean up here 
 			# ::Section1:: Coroutine -> Handle by Network 
+			from Blocky.asyn import Cancellable
+			
+			await Cancellable.cancel_all()
 			print(' ::Section2:: Variables ')
 			global GLOBAL_CAPTURE
 			print(GLOBAL_CAPTURE)
@@ -42,7 +44,7 @@ async def service():
 				if x not in GLOBAL_CAPTURE:
 					
 					print(x)
-					#del globals()[x]
+					del globals()[x]
 			list_pin = [4,33,16,32,22,25,26,14,18,13,17,27,19]
 			print(' ::Section3:: Pin IRQ , PWM ')
 			from machine import Pin , PWM
@@ -103,9 +105,9 @@ else :
 # network will do the wifi and broker
 from Blocky.MQTT import *
 from Blocky.Network import *
-
-GLOBAL_CAPTURE = []
-
+import _thread
+loop = asyncio.get_event_loop()
+GLOBAL_CAPTURE = list(globals().keys()) 
 try :
 	exec(open('user_code.py').read())
 except Exception as err:
@@ -116,25 +118,18 @@ except Exception as err:
  If inside the setup block contains a blocking operation , the chip will be bricked
  
 """
-import _thread
-loop = asyncio.get_event_loop()
+
+
 def atte():
   while True :
     try :
       loop.run_forever()
-    except Exception as err:
-      print(err)
+    except Exception as e:
+        import sys
+        sys.print_exception(e)
       
-GLOBAL_CAPTURE = list(globals().keys()) 
+
 _thread.start_new_thread(atte,())
-
-
-async def cancelall():
-    await asyn.Cancellable.cancel_all()
-    
-def cancel():
-    loop = asyncio.get_event_loop()
-    loop.call_soon(cancelall())
 
 
 

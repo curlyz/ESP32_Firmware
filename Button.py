@@ -57,7 +57,7 @@ class Button:
 				raise Exception
 			if str(function).find('generator'):
 				loop = asyncio.get_event_loop()
-				loop.call_soon(function())
+				loop.create_task(Cancellable(function)())
 			else :
 				function()
 				

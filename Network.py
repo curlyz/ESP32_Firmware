@@ -114,7 +114,7 @@ class Network:
 			print('nw-mqtt-> ' , err)
 	# Process will trigger mqtt.wait_msg -> selb.cb -> self.handler
 	async def cancel (self):
-		await asyn.Cancellable.cancel_all()
+		await Cancellable.cancel_all()
 	def handler(self,topic,message):
 		try :
 			indicator.animate('pulse' , (0,100,0))
